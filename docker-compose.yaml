@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:latest
-    container_name: c_db_auth
+    container_name: c_java_db_auth
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 123456
@@ -10,6 +10,23 @@ services:
       - "5400:5432"
     volumes:
       - java_auth_db_volume:/var/lib/postgresql/data
+
+  api:
+    container_name: c_java_auth_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/JavaAuthDb
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - JWT_KEY=mYiADZOy9Hq5pTfomhj9hPUJLGAN/ZB6AZ4yoHfCtN0f8DaNQr6+4qeaJ9YfMK4ZbX85J3ao6TotW+jrLKLGeafpaYYLn2mmrYOB/1mJzhQYEaf883PtWAIwnTwHpPuEsJAhyHwEtlTvy++pZA+0bns66RUDBk80bJUA4JhJUI8=
+      - JWT_EXPIRATION=86400000
+      - REFRESH_TOKEN_EXPIRATION=604800000
 
 volumes:
   java_auth_db_volume:
