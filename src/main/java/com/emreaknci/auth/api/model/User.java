@@ -5,12 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Date;
 import java.util.Set;
 
 @Data
@@ -25,13 +22,20 @@ public class User implements UserDetails {
     @GeneratedValue
     private Long id;
 
-    @Column(unique=true)
+    @Column(unique=true, nullable=false)
     private String username;
 
-    @Column(unique=true)
+    @Column(unique=true, nullable=false)
     private String email;
 
+    @Column(nullable=false)
     private String password;
+
+    @Column(nullable=true)
+    private String refreshToken;
+
+    @Column(nullable=true)
+    private Date refreshTokenExpiryDate;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @JoinTable(name = "authorities", joinColumns = @JoinColumn(name = "user_id"))

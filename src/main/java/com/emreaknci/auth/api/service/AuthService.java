@@ -1,9 +1,12 @@
 package com.emreaknci.auth.api.service;
 
+import com.emreaknci.auth.api.dto.RefreshRequest;
 import com.emreaknci.auth.api.dto.RegisterRequest;
 import com.emreaknci.auth.api.dto.LoginRequest;
 import com.emreaknci.auth.api.dto.LoginResponse;
 import com.emreaknci.auth.api.exception.EmailAlreadyExistsException;
+import com.emreaknci.auth.api.exception.RefreshTokenExpiredException;
+import com.emreaknci.auth.api.exception.RefreshTokenNotFoundException;
 import com.emreaknci.auth.api.exception.UsernameAlreadyExistsException;
 import com.emreaknci.auth.api.model.User;
 import com.emreaknci.auth.api.repository.UserRepository;
@@ -13,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +55,25 @@ public class AuthService {
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.usernameOrEmail(), loginRequest.password()));
 
-        String token = jwtService.generateToken(user);
-        return new LoginResponse(token);
+        return getLoginResponse(user);
+    }
+
+    public LoginResponse refreshToken(RefreshRequest refreshRequest) {
+        User user = userRepository.findByRefreshToken(refreshRequest.refreshToken())
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
+
+        if(user.getRefreshTokenExpiryDate().before(new Date()))
+            throw new RefreshTokenExpiredException("The user's refresh token has expired.");
+
+        return getLoginResponse(user);
+    }
+
+    private LoginResponse getLoginResponse(User user) {
+        var accessToken = jwtService.generateAccessToken(user);
+        var newRefreshToken = jwtService.generateRefreshToken(user);
+        user.setRefreshToken(newRefreshToken.getToken());
+        user.setRefreshTokenExpiryDate(newRefreshToken.getExpirationTime());
+        userRepository.save(user);
+        return new LoginResponse(accessToken.getToken(), newRefreshToken.getToken());
     }
 }

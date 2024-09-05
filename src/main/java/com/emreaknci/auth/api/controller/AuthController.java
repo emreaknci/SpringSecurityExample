@@ -1,12 +1,11 @@
 package com.emreaknci.auth.api.controller;
 
 import com.emreaknci.auth.api.dto.LoginResponse;
+import com.emreaknci.auth.api.dto.RefreshRequest;
 import com.emreaknci.auth.api.dto.RegisterRequest;
 import com.emreaknci.auth.api.dto.LoginRequest;
 import com.emreaknci.auth.api.service.AuthService;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +29,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> auth(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@RequestBody RefreshRequest refreshRequest) {
+        return ResponseEntity.ok(authService.refreshToken(refreshRequest));
     }
 
     @GetMapping("/user")

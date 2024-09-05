@@ -13,7 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException exc) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException exc) throws IOException {
         response.sendError(HttpStatus.FORBIDDEN.value());
     }
 }

@@ -1,8 +1,6 @@
 package com.emreaknci.auth.api.dto;
 
-
-public record LoginResponse(
-        String accessToken,
+public record RefreshRequest(
         String refreshToken
 ) {
 }
